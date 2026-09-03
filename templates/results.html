@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Recommendations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Your Job Recommendations</h1>
+
+        <div class="skills-box">
+            <h2>Skills Detected in Your Resume</h2>
+            <div class="skills-list">
+                {% for skill in skills %}
+                    <span class="skill-tag">{{ skill }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <h2>Top Matching Jobs</h2>
+        <div class="job-cards">
+            {% for job in recommendations %}
+                <div class="job-card">
+                    <div class="job-header">
+                        <h3>{{ job.job_title }}</h3>
+                        <span class="match-score">{{ job.match_score }}% match</span>
+                    </div>
+                    <p class="company">{{ job.company }}</p>
+                    <p class="description">{{ job.description }}</p>
+                    <p class="required-skills"><strong>Required skills:</strong> {{ job.required_skills }}</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <a href="/" class="back-link">&larr; Try another resume</a>
+    </div>
+</body>
+</html>

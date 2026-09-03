@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Resume & Job Recommender</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>AI-Based Resume Screening &amp; Job Recommendation System</h1>
+        <p class="subtitle">Upload your resume and get personalized job recommendations powered by AI.</p>
+
+        {% if error %}
+            <div class="error-box">{{ error }}</div>
+        {% endif %}
+
+        <form action="/upload" method="POST" enctype="multipart/form-data" class="upload-form">
+            <label for="resume" class="file-label">
+                Choose your resume (PDF or DOCX)
+            </label>
+            <input type="file" name="resume" id="resume" accept=".pdf,.docx" required>
+            <button type="submit">Analyze Resume</button>
+        </form>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
