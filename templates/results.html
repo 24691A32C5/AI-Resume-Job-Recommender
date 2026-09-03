@@ -9,21 +9,35 @@
     <div class="container">
         <h1>Your Career Analysis</h1>
 
-        <div class="readiness-box">
-            <h2>Job Readiness Score</h2>
-            <div class="readiness-score">{{ overall_readiness }}%</div>
-            <div class="readiness-bar-track">
-                <div class="readiness-bar-fill" style="width: {{ overall_readiness }}%;"></div>
+        <div class="score-row">
+            <div class="score-box">
+                <p class="score-label">Overall Career Readiness</p>
+                <div class="readiness-score">{{ overall_readiness }}%</div>
+                <div class="readiness-bar-track">
+                    <div class="readiness-bar-fill" style="width: {{ overall_readiness }}%;"></div>
+                </div>
             </div>
-            <p class="readiness-label">
-                {% if overall_readiness >= 75 %}
-                    Great fit! You're close to job-ready for {{ top_job }}.
-                {% elif overall_readiness >= 50 %}
-                    Good foundation — a few more skills will make you a strong candidate for {{ top_job }}.
-                {% else %}
-                    You're on your way — focus on the missing skills below to improve your match for {{ top_job }}.
-                {% endif %}
-            </p>
+            <div class="score-box">
+                <p class="score-label">ATS Compatibility Score</p>
+                <div class="readiness-score ats-score">{{ ats_score }}/100</div>
+                <div class="readiness-bar-track">
+                    <div class="readiness-bar-fill ats-fill" style="width: {{ ats_score }}%;"></div>
+                </div>
+                <p class="ats-note">Approximate estimate based on structure, keywords, and formatting — not a substitute for a real ATS engine.</p>
+            </div>
+        </div>
+
+        <div class="suggestions-box">
+            <h2>📝 Resume Improvement Suggestions</h2>
+            <ul class="suggestions-list">
+                {% for s in resume_suggestions %}
+                    {% if s.type == 'good' %}
+                        <li class="suggestion-good">✅ {{ s.message }}</li>
+                    {% else %}
+                        <li class="suggestion-warning">⚠️ {{ s.message }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
         </div>
 
         <div class="skills-box">
@@ -93,6 +107,36 @@
                         <ul class="project-list">
                             {% for project in job.project_ideas %}
                                 <li>{{ project }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    {% if job.simulation %}
+                    <div class="simulator-section">
+                        <p class="section-label">📈 Readiness Improvement Simulator</p>
+                        <p class="simulator-start">Current readiness: <strong>{{ job.readiness_score }}%</strong></p>
+                        <div class="simulator-steps">
+                            {% for step in job.simulation %}
+                                <div class="simulator-step">
+                                    + Learn <strong>{{ step.skill_added }}</strong> → {{ step.readiness_after }}%
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="interview-section">
+                        <p class="section-label">🎤 Interview Preparation</p>
+                        <p class="interview-subtitle">Technical Questions</p>
+                        <ul class="interview-list">
+                            {% for q in job.interview_questions.technical %}
+                                <li>{{ q }}</li>
+                            {% endfor %}
+                        </ul>
+                        <p class="interview-subtitle">HR Questions</p>
+                        <ul class="interview-list">
+                            {% for q in job.interview_questions.hr %}
+                                <li>{{ q }}</li>
                             {% endfor %}
                         </ul>
                     </div>

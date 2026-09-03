@@ -49,3 +49,25 @@ def recommend_jobs(resume_skills, top_n=5):
         job["readiness_score"] = readiness
 
     return results
+def simulate_readiness_improvement(resume_skills, job):
+    """
+    Given a job's missing skills, show how readiness would improve
+    if the student learned them one at a time, in order.
+    """
+    resume_skills_lower = [s.strip().lower() for s in resume_skills]
+    required = parse_skill_list(job["required_skills"])
+    missing = job["missing_skills"]
+
+    simulation = []
+    current_known = list(resume_skills_lower)
+
+    for skill in missing:
+        current_known.append(skill)
+        matched_count = len([s for s in required if s in current_known])
+        new_readiness = round((matched_count / len(required)) * 100) if required else 0
+        simulation.append({
+            "skill_added": skill,
+            "readiness_after": new_readiness
+        })
+
+    return simulation

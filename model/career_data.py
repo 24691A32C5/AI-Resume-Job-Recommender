@@ -122,3 +122,192 @@ def get_learning_roadmap(missing_skills):
     for skill in missing_skills[:3]:
         roadmap[skill] = LEARNING_ROADMAP.get(skill, DEFAULT_ROADMAP)
     return roadmap
+# Static interview question banks per job title
+INTERVIEW_QUESTIONS = {
+    "VLSI Design Engineer": {
+        "technical": [
+            "Explain the difference between Verilog and VHDL.",
+            "What is the difference between blocking and non-blocking assignments in Verilog?",
+            "Explain setup time and hold time in digital circuits.",
+            "What is an FPGA and how does it differ from an ASIC?",
+        ],
+        "hr": [
+            "Tell me about a hardware project you're proud of.",
+            "Why are you interested in VLSI design?",
+            "How do you stay updated with new EDA tools and techniques?",
+        ],
+    },
+    "Embedded Systems Engineer": {
+        "technical": [
+            "What is the difference between a microcontroller and a microprocessor?",
+            "Explain the concept of interrupts in embedded systems.",
+            "What is RTOS and why is it used?",
+            "How do you debug embedded C code without a screen output?",
+        ],
+        "hr": [
+            "Describe a hardware-software integration challenge you faced.",
+            "Why do you want to work in embedded systems?",
+            "How do you approach debugging a device that behaves unpredictably?",
+        ],
+    },
+    "Electronics Design Engineer": {
+        "technical": [
+            "What is the difference between analog and digital circuits?",
+            "Explain the purpose of decoupling capacitors in PCB design.",
+            "What are common causes of noise in a circuit and how do you reduce it?",
+        ],
+        "hr": [
+            "Tell me about a circuit you designed from scratch.",
+            "How do you handle tight deadlines in hardware prototyping?",
+        ],
+    },
+    "Communication Systems Engineer": {
+        "technical": [
+            "Explain the difference between analog and digital modulation.",
+            "What is the Nyquist theorem and why does it matter?",
+            "Explain the basics of OFDM and where it's used.",
+        ],
+        "hr": [
+            "Why are you interested in communication systems?",
+            "Describe a signal processing project you've worked on.",
+        ],
+    },
+    "IoT Engineer": {
+        "technical": [
+            "What are common IoT communication protocols (MQTT, CoAP, etc.)?",
+            "How do you ensure security in an IoT device?",
+            "Explain the role of edge computing in IoT systems.",
+        ],
+        "hr": [
+            "Describe an IoT project you've built.",
+            "How do you handle unreliable network conditions in your IoT projects?",
+        ],
+    },
+    "Data Scientist": {
+        "technical": [
+            "Explain the bias-variance tradeoff.",
+            "What is overfitting and how do you prevent it?",
+            "Explain the difference between supervised and unsupervised learning.",
+        ],
+        "hr": [
+            "Walk me through a data science project end-to-end.",
+            "How do you communicate technical results to non-technical stakeholders?",
+        ],
+    },
+    "Machine Learning Engineer": {
+        "technical": [
+            "Explain how a neural network learns.",
+            "What is the difference between CNN and RNN?",
+            "How do you handle imbalanced datasets?",
+        ],
+        "hr": [
+            "Tell me about the most challenging ML project you've worked on.",
+            "How do you keep up with new developments in ML?",
+        ],
+    },
+    "Backend Developer": {
+        "technical": [
+            "Explain RESTful API design principles.",
+            "What is the difference between SQL and NoSQL databases?",
+            "How do you handle authentication and authorization in a web app?",
+        ],
+        "hr": [
+            "Describe a backend system you built or contributed to.",
+            "How do you approach debugging a production issue?",
+        ],
+    },
+    "Python Developer": {
+        "technical": [
+            "What are Python decorators and how do you use them?",
+            "Explain the difference between a list and a tuple.",
+            "How does Python's garbage collection work?",
+        ],
+        "hr": [
+            "Tell me about a Python project you're proud of.",
+            "How do you approach writing clean, maintainable code?",
+        ],
+    },
+    "Full Stack Developer": {
+        "technical": [
+            "Explain how the frontend and backend communicate in a web app.",
+            "What is CORS and why does it matter?",
+            "How do you manage state in a frontend application?",
+        ],
+        "hr": [
+            "Walk me through a full stack project you've built.",
+            "How do you prioritize frontend vs backend work under a deadline?",
+        ],
+    },
+    "Mechanical Design Engineer": {
+        "technical": [
+            "Explain the difference between stress and strain.",
+            "What is GD&T and why is it important in design?",
+            "How do you approach tolerance stack-up analysis?",
+        ],
+        "hr": [
+            "Describe a mechanical design project you've completed.",
+            "How do you balance design creativity with manufacturability constraints?",
+        ],
+    },
+    "Civil Site Engineer": {
+        "technical": [
+            "What are the key considerations in site layout planning?",
+            "Explain the difference between dead load and live load.",
+            "How do you ensure quality control on a construction site?",
+        ],
+        "hr": [
+            "Describe a construction project you were involved in.",
+            "How do you handle coordination issues between contractors?",
+        ],
+    },
+    "Structural Engineer": {
+        "technical": [
+            "Explain the difference between a beam and a column.",
+            "What factors affect the load-bearing capacity of a structure?",
+            "How do you approach seismic design considerations?",
+        ],
+        "hr": [
+            "Describe a structural analysis project you've worked on.",
+            "How do you ensure your designs meet safety codes?",
+        ],
+    },
+    "Robotics Engineer": {
+        "technical": [
+            "Explain the difference between forward and inverse kinematics.",
+            "What is ROS and why is it widely used in robotics?",
+            "How do you approach sensor fusion in a robotic system?",
+        ],
+        "hr": [
+            "Describe a robotics project you've built.",
+            "How do you debug unexpected robot behavior?",
+        ],
+    },
+    "Power Systems Engineer": {
+        "technical": [
+            "Explain the difference between active and reactive power.",
+            "What is load flow analysis and why is it important?",
+            "How do protection systems work in power grids?",
+        ],
+        "hr": [
+            "Describe a power systems project you've analyzed or designed.",
+            "How do you approach troubleshooting a fault in a power system?",
+        ],
+    },
+}
+
+DEFAULT_INTERVIEW_QUESTIONS = {
+    "technical": [
+        "Explain a technical project relevant to this role in detail.",
+        "What tools or technologies are essential for this role, and why?",
+        "How would you approach solving a problem you've never encountered before in this field?",
+    ],
+    "hr": [
+        "Tell me about yourself.",
+        "Why are you interested in this role?",
+        "Describe a challenge you faced in a project and how you overcame it.",
+    ],
+}
+
+
+def get_interview_questions(job_title):
+    return INTERVIEW_QUESTIONS.get(job_title, DEFAULT_INTERVIEW_QUESTIONS)

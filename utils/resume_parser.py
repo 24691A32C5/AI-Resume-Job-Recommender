@@ -109,3 +109,100 @@ def parse_resume(file_path):
         "raw_text": text,
         "skills": skills
     }
+def check_resume_sections(text):
+    """Check which standard resume sections are present."""
+    text_lower = text.lower()
+    sections = {
+        "education": ["education", "b.tech", "degree", "university", "college"],
+        "projects": ["project", "projects"],
+        "skills": ["skills", "technical skills"],
+        "certifications": ["certification", "certificate", "coursera", "udemy"],
+        "experience": ["experience", "internship", "work history"],
+        "contact_info": ["@", "phone", "email", "contact"],
+    }
+
+    found = {}
+    for section, keywords in sections.items():
+        found[section] = any(kw in text_lower for kw in keywords)
+
+    return found
+
+
+def check_measurable_achievements(text):
+    """Rough check for numbers/metrics in the resume (signals measurable impact)."""
+    import re
+    number_pattern = r'\b\d+%|\b\d+\+|\bimproved\b|\breduced\b|\bincreased\b'
+    matches = re.findall(number_pattern, text.lower())
+    return len(matches) > 0
+
+
+def generate_resume_suggestions(text, skills):
+    """Generate a list of improvement suggestions based on simple rule-based checks."""
+    suggestions = []
+    sections = check_resume_sections(text)
+
+    if sections["education"]:
+        suggestions.append({"type": "good", "message": "Education section detected."})
+    else:
+        suggestions.append({"type": "warning", "message": "No clear education section found — consider adding one."})
+
+    if sections["projects"]:
+        suggestions.append({"type": "good", "message": "Projects section detected."})
+    else:
+        suggestions.append({"type": "warning", "message": "No projects section found — adding relevant projects strengthens your resume significantly."})
+
+    if sections["certifications"]:
+        suggestions.append({"type": "good", "message": "Certifications detected."})
+    else:
+        suggestions.append({"type": "warning", "message": "No certifications found — relevant certifications can boost your profile."})
+
+    if sections["experience"]:
+        suggestions.append({"type": "good", "message": "Experience/internship section detected."})
+    else:
+        suggestions.append({"type": "warning", "message": "No experience or internship mentioned — consider adding any relevant work, even short-term."})
+
+    if not check_measurable_achievements(text):
+        suggestions.append({"type": "warning", "message": "Add measurable achievements to your projects (e.g., 'improved accuracy by 15%', 'reduced load time by 2x')."})
+    else:
+        suggestions.append({"type": "good", "message": "Measurable achievements detected in your resume."})
+
+    if len(skills) < 5:
+        suggestions.append({"type": "warning", "message": "Few technical skills detected — consider listing more relevant tools and technologies."})
+    else:
+        suggestions.append({"type": "good", "message": f"{len(skills)} relevant skills detected — good keyword coverage."})
+
+    return suggestions
+
+
+def calculate_ats_score(text, skills):
+    """
+    Approximate ATS compatibility score based on simple, transparent rules.
+    This is NOT identical to real commercial ATS systems, but reflects
+    common factors they check: sections present, keyword density, resume length.
+    """
+    score = 0
+    max_score = 100
+    sections = check_resume_sections(text)
+
+    # Section presence (50 points total)
+    section_weight = 50 / len(sections)
+    for present in sections.values():
+        if present:
+            score += section_weight
+
+    # Skill/keyword count (30 points, capped)
+    skill_score = min(len(skills) * 3, 30)
+    score += skill_score
+
+    # Measurable achievements (10 points)
+    if check_measurable_achievements(text):
+        score += 10
+
+    # Reasonable length check (10 points) - not too short, not excessively long
+    word_count = len(text.split())
+    if 150 <= word_count <= 1000:
+        score += 10
+    elif word_count > 0:
+        score += 5
+
+    return round(min(score, max_score))
