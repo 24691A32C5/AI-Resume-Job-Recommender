@@ -4,10 +4,10 @@ from werkzeug.utils import secure_filename
 
 from utils.resume_parser import parse_resume
 from model.recommender import recommend_jobs
+from model.career_data import get_project_suggestions, get_learning_roadmap
 
 app = Flask(__name__)
 
-# Folder where uploaded resumes will be temporarily stored
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -53,10 +53,20 @@ def upload():
 
         recommendations = recommend_jobs(skills, top_n=5)
 
+        # Attach project suggestions and learning roadmap to each job
+        for job in recommendations:
+            job["project_ideas"] = get_project_suggestions(job["job_title"])
+            job["roadmap"] = get_learning_roadmap(job["missing_skills"])
+
+        # Overall "job readiness" = readiness score of the top match
+        overall_readiness = recommendations[0]["readiness_score"] if recommendations else 0
+
         return render_template(
             "results.html",
             skills=skills,
-            recommendations=recommendations
+            recommendations=recommendations,
+            overall_readiness=overall_readiness,
+            top_job=recommendations[0]["job_title"] if recommendations else None
         )
 
     except Exception as e:

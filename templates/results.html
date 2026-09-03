@@ -7,7 +7,24 @@
 </head>
 <body>
     <div class="container">
-        <h1>Your Job Recommendations</h1>
+        <h1>Your Career Analysis</h1>
+
+        <div class="readiness-box">
+            <h2>Job Readiness Score</h2>
+            <div class="readiness-score">{{ overall_readiness }}%</div>
+            <div class="readiness-bar-track">
+                <div class="readiness-bar-fill" style="width: {{ overall_readiness }}%;"></div>
+            </div>
+            <p class="readiness-label">
+                {% if overall_readiness >= 75 %}
+                    Great fit! You're close to job-ready for {{ top_job }}.
+                {% elif overall_readiness >= 50 %}
+                    Good foundation — a few more skills will make you a strong candidate for {{ top_job }}.
+                {% else %}
+                    You're on your way — focus on the missing skills below to improve your match for {{ top_job }}.
+                {% endif %}
+            </p>
+        </div>
 
         <div class="skills-box">
             <h2>Skills Detected in Your Resume</h2>
@@ -28,7 +45,57 @@
                     </div>
                     <p class="company">{{ job.company }}</p>
                     <p class="description">{{ job.description }}</p>
-                    <p class="required-skills"><strong>Required skills:</strong> {{ job.required_skills }}</p>
+
+                    <div class="readiness-mini">
+                        <span>Readiness for this role: {{ job.readiness_score }}%</span>
+                        <div class="readiness-bar-track small">
+                            <div class="readiness-bar-fill" style="width: {{ job.readiness_score }}%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="skill-gap-section">
+                        <div class="skill-gap-column">
+                            <p class="skill-gap-label matched-label">✅ Skills You Have</p>
+                            <div class="skills-list">
+                                {% for s in job.matched_skills %}
+                                    <span class="skill-tag matched-tag">{{ s }}</span>
+                                {% else %}
+                                    <span class="no-skills">None matched</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="skill-gap-column">
+                            <p class="skill-gap-label missing-label">❌ Skills to Learn</p>
+                            <div class="skills-list">
+                                {% for s in job.missing_skills %}
+                                    <span class="skill-tag missing-tag">{{ s }}</span>
+                                {% else %}
+                                    <span class="no-skills">None — you meet all requirements!</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if job.roadmap %}
+                    <div class="roadmap-section">
+                        <p class="section-label">📚 Learning Roadmap for Missing Skills</p>
+                        {% for skill, steps in job.roadmap.items() %}
+                            <div class="roadmap-item">
+                                <strong>{{ skill }}:</strong>
+                                <span class="roadmap-steps">{{ steps | join(' → ') }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="projects-section">
+                        <p class="section-label">💡 Suggested Projects to Build</p>
+                        <ul class="project-list">
+                            {% for project in job.project_ideas %}
+                                <li>{{ project }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
             {% endfor %}
         </div>
