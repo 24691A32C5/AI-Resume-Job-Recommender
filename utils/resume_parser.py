@@ -176,33 +176,72 @@ def generate_resume_suggestions(text, skills):
 
 def calculate_ats_score(text, skills):
     """
-    Approximate ATS compatibility score based on simple, transparent rules.
+    Approximate ATS compatibility score broken into weighted sub-scores.
     This is NOT identical to real commercial ATS systems, but reflects
-    common factors they check: sections present, keyword density, resume length.
+    common factors they check: sections present, keyword density, resume length, achievements.
     """
-    score = 0
-    max_score = 100
     sections = check_resume_sections(text)
+    breakdown = {}
 
-    # Section presence (50 points total)
-    section_weight = 50 / len(sections)
-    for present in sections.values():
-        if present:
-            score += section_weight
+    # 1. Required sections present (20 points)
+    section_score = round((sum(sections.values()) / len(sections)) * 20)
+    breakdown["Required Sections"] = section_score
 
-    # Skill/keyword count (30 points, capped)
-    skill_score = min(len(skills) * 3, 30)
-    score += skill_score
+    # 2. Keyword / skills relevance (25 points, capped)
+    keyword_score = min(round(len(skills) * 2.5), 25)
+    breakdown["Keyword Relevance"] = keyword_score
 
-    # Measurable achievements (10 points)
-    if check_measurable_achievements(text):
-        score += 10
+    # 3. Resume structure (20 points) - based on having education + projects + skills sections
+    structure_hits = sum([sections["education"], sections["projects"], sections["skills"]])
+    structure_score = round((structure_hits / 3) * 20)
+    breakdown["Resume Structure"] = structure_score
 
-    # Reasonable length check (10 points) - not too short, not excessively long
+    # 4. Formatting / length check (15 points)
     word_count = len(text.split())
     if 150 <= word_count <= 1000:
-        score += 10
+        formatting_score = 15
     elif word_count > 0:
-        score += 5
+        formatting_score = 8
+    else:
+        formatting_score = 0
+    breakdown["Formatting & Length"] = formatting_score
 
-    return round(min(score, max_score))
+    # 5. Measurable achievements (10 points)
+    achievement_score = 10 if check_measurable_achievements(text) else 3
+    breakdown["Achievements"] = achievement_score
+
+    # 6. Experience/certifications bonus (10 points)
+    bonus_hits = sum([sections["experience"], sections["certifications"]])
+    bonus_score = round((bonus_hits / 2) * 10)
+    breakdown["Experience & Certifications"] = bonus_score
+
+    total = sum(breakdown.values())
+    total = min(total, 97)  # cap below 100 to stay realistic - a perfect score is rarely honest
+
+    # Generate human-readable notes based on weak areas
+    notes = []
+    if section_score < 15:
+        notes.append({"type": "warning", "message": "Some standard resume sections seem to be missing."})
+    else:
+        notes.append({"type": "good", "message": "Clear section headings detected."})
+
+    if keyword_score < 15:
+        notes.append({"type": "warning", "message": "Add more job-specific keywords and technical terms."})
+    else:
+        notes.append({"type": "good", "message": "Good keyword coverage for ATS scanning."})
+
+    if formatting_score < 15:
+        notes.append({"type": "warning", "message": "Resume length may be too short or too long for typical ATS parsing."})
+    else:
+        notes.append({"type": "good", "message": "Resume length is within a good range."})
+
+    if achievement_score < 10:
+        notes.append({"type": "warning", "message": "Add measurable achievements to strengthen ATS keyword matching."})
+    else:
+        notes.append({"type": "good", "message": "Measurable achievements detected."})
+
+    return {
+        "total": total,
+        "breakdown": breakdown,
+        "notes": notes
+    }

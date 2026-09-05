@@ -19,12 +19,33 @@
             </div>
             <div class="score-box">
                 <p class="score-label">ATS Compatibility Score</p>
-                <div class="readiness-score ats-score">{{ ats_score }}/100</div>
+                <div class="readiness-score ats-score">{{ ats_result.total }}/100</div>
                 <div class="readiness-bar-track">
-                    <div class="readiness-bar-fill ats-fill" style="width: {{ ats_score }}%;"></div>
+                    <div class="readiness-bar-fill ats-fill" style="width: {{ ats_result.total }}%;"></div>
                 </div>
-                <p class="ats-note">Approximate estimate based on structure, keywords, and formatting — not a substitute for a real ATS engine.</p>
+                <p class="ats-note">Approximate estimate — not a substitute for a real ATS engine.</p>
             </div>
+        </div>
+
+        <div class="suggestions-box">
+            <h2>📊 ATS Score Breakdown</h2>
+            <div class="ats-breakdown">
+                {% for category, points in ats_result.breakdown.items() %}
+                    <div class="ats-breakdown-row">
+                        <span class="ats-category">{{ category }}</span>
+                        <span class="ats-points">{{ points }} pts</span>
+                    </div>
+                {% endfor %}
+            </div>
+            <ul class="suggestions-list" style="margin-top: 14px;">
+                {% for note in ats_result.notes %}
+                    {% if note.type == 'good' %}
+                        <li class="suggestion-good">✅ {{ note.message }}</li>
+                    {% else %}
+                        <li class="suggestion-warning">⚠️ {{ note.message }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
         </div>
 
         <div class="suggestions-box">
@@ -49,6 +70,28 @@
             </div>
         </div>
 
+        {% if internships %}
+        <h2>🎓 Recommended Internships</h2>
+        <div class="job-cards">
+            {% for job in internships %}
+                <div class="job-card internship-card">
+                    <div class="job-header">
+                        <h3>{{ job.job_title }}</h3>
+                        <span class="match-score">{{ job.match_score }}% match</span>
+                    </div>
+                    <p class="company">{{ job.company }}</p>
+                    <p class="description">{{ job.description }}</p>
+                    <div class="readiness-mini">
+                        <span>Readiness: {{ job.readiness_score }}%</span>
+                        <div class="readiness-bar-track small">
+                            <div class="readiness-bar-fill" style="width: {{ job.readiness_score }}%;"></div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <h2>Top Matching Jobs</h2>
         <div class="job-cards">
             {% for job in recommendations %}
@@ -57,8 +100,12 @@
                         <h3>{{ job.job_title }}</h3>
                         <span class="match-score">{{ job.match_score }}% match</span>
                     </div>
-                    <p class="company">{{ job.company }}</p>
+                    <p class="company">{{ job.company }} &middot; <span class="job-level-tag">{{ job.job_level }}</span></p>
                     <p class="description">{{ job.description }}</p>
+
+                    {% if job.match_highlight %}
+                        <p class="match-highlight">🔍 Why this match? Your strongest matching skill is <strong>{{ job.match_highlight }}</strong>.</p>
+                    {% endif %}
 
                     <div class="readiness-mini">
                         <span>Readiness for this role: {{ job.readiness_score }}%</span>
@@ -122,6 +169,7 @@
                                 </div>
                             {% endfor %}
                         </div>
+                        <p class="simulator-disclaimer">Estimated projection — actual readiness depends on depth of learning and practice.</p>
                     </div>
                     {% endif %}
 
@@ -143,6 +191,17 @@
                 </div>
             {% endfor %}
         </div>
+
+        {% if action_plan %}
+        <div class="action-plan-box">
+            <h2>🎯 Your Next Steps</h2>
+            <ol class="action-plan-list">
+                {% for step in action_plan %}
+                    <li>{{ step }}</li>
+                {% endfor %}
+            </ol>
+        </div>
+        {% endif %}
 
         <a href="/" class="back-link">&larr; Try another resume</a>
     </div>

@@ -51,8 +51,9 @@ def recommend_jobs(resume_skills, top_n=5):
     return results
 def simulate_readiness_improvement(resume_skills, job):
     """
-    Given a job's missing skills, show how readiness would improve
-    if the student learned them one at a time, in order.
+    Simulate readiness improvement with diminishing returns and a realistic cap.
+    Each learned skill contributes less than a pure linear split would suggest,
+    and we add optional 'soft' boosts (project, interview prep) capped below 100%.
     """
     resume_skills_lower = [s.strip().lower() for s in resume_skills]
     required = parse_skill_list(job["required_skills"])
@@ -60,14 +61,48 @@ def simulate_readiness_improvement(resume_skills, job):
 
     simulation = []
     current_known = list(resume_skills_lower)
+    base_readiness = job["readiness_score"]
 
     for skill in missing:
         current_known.append(skill)
         matched_count = len([s for s in required if s in current_known])
-        new_readiness = round((matched_count / len(required)) * 100) if required else 0
+        raw_readiness = (matched_count / len(required)) * 100 if required else 0
+        # Apply a slight damping so it doesn't feel like each skill = exact equal share
+        damped = base_readiness + (raw_readiness - base_readiness) * 0.85
         simulation.append({
             "skill_added": skill,
-            "readiness_after": new_readiness
+            "readiness_after": round(min(damped, 90))
         })
 
+    # Soft, optional boosts beyond just learning the listed skills
+    last_score = simulation[-1]["readiness_after"] if simulation else base_readiness
+    if last_score < 95:
+        project_boost = round(min(last_score + 6, 94))
+        simulation.append({"skill_added": "a relevant project", "readiness_after": project_boost})
+
+        interview_boost = round(min(project_boost + 4, 96))
+        simulation.append({"skill_added": "interview preparation", "readiness_after": interview_boost})
+
     return simulation
+
+
+def get_match_highlight(job):
+    """Return a short human-readable summary of the strongest matching skill, if any."""
+    matched = job.get("matched_skills", [])
+    if not matched:
+        return None
+    # Just take the first matched skill as the highlight (could be made smarter later)
+    return matched[0]
+
+
+def tag_job_level(job_title):
+    """
+    Very simple heuristic to mark some roles as Internship-friendly.
+    In a real system this would come from actual job posting data.
+    """
+    internship_friendly = [
+        "Embedded Systems Engineer", "Electronics Design Engineer", "IoT Engineer",
+        "Python Developer", "Frontend Developer", "Data Analyst", "Mechanical Design Engineer",
+        "Civil Site Engineer", "VLSI Design Engineer",
+    ]
+    return "Internship-friendly" if job_title in internship_friendly else "Full-time"
